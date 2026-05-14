@@ -1,0 +1,99 @@
+
+1  crear el documento .env
+
+2 importar : 
+npm init -y 
+npm i express()
+npm install dotenv
+npm mongodb
+npm node 
+
+==============// creacion documento server // ==================
+
+1 importar la funcion para leer documento .env => importar (dotenv).configure()
+2 importar los metodos MongoClient serverApiVersion y ObjectId de mogodb
+3 leer el documento env => 
+constante uri => process.env.MONGO_URI
+
+
+
+==============// Metodo Post // ==================
+
+1  saber si exixten las varible que se obtienen de body
+2  validar si son string o una cadena vacia
+3 method to convert the object new Date() to day and hour formart
+
+
+
+
+==============// Metodo Delete // ==================
+
+
+  /* NOTA IMPORTANTE
+el usuario manda el id por medio de un tipo de dato string, para que MongoDB pueda leerlo se necesiat convertir en formarto de MongoDB, es decir a su dato especial ObjectID
+*/
+
+Metodos:
+
+1 Validar si un id es valido
+ObjectId.isValid(id)
+
+
+2 Crear uno nuevo
+const newId = new ObjectID();
+
+3 Convertir a string
+newId .toString()
+
+
+???????????  Que devuelve findOne si encuentra o no el valor?
+si encuentra el documento, devuelve el documento , sino devuleve null por lo que para validar se debe validar si es false o no el valor
+
+
+????????? Que devuelve ObjectID.isValid(id) , si es valido el id o no?
+
+si es valido, devuelve el id valido y si no devuelve false
+
+
+
+==============// Metodo Patch // ==================
+
+findOneAndUpdate() 
+para actualizar y devolver el documento 
+
+
+==============// Code Status // ==================
+
+
+200 [ok] => request successful / Requete reussie / solicitud exitosa
+
+
+201 [created] cuando se crea un documento => resource created  / ressource creee / recurso creado
+
+
+400 [bad request] datos incorrectos o incompletos => invalid request / requete invalide / solicitud invalida
+
+
+401 [Unauthorized]=> usuario no autenticado => authentication required / authentification requise / autenticacion requerida
+
+
+403 [Forbidden] no se tiene permiso => access forbiden / acces interdit / acceso prohibido
+
+404 [not found] Id o recurso inexistente => resource not found / ressource introuvable / recurso no encontrado
+
+409 [conflict] datos duplicados o incompatibles =>
+conflict detected / conflit detecte / conflicto detectado
+
+422 Datos válidos en formato, pero lógicamente incorrectos
+
+500 [internal server error] error inesperado en el backend => internal server error / erreur interne du serveur / error interno del servidor 
+
+
+///======Como validar opciones permitidas======///
+Se usa operador && 
+
+No es A
+Y 
+No es B
+Y
+No es C
