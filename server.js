@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 });
 
 startServer();
-const db = client.db("blogLikes");
+const db = client.db(process.env.MONGO_DB_NAME);
 const posts = db.collection("posts");
 
 // function valid ID
@@ -81,7 +81,6 @@ app.get("/posts", async (req, res) => {
 
     if (!date && !authors) {
       const allPosts = await posts.find().toArray();
-
       return res.status(200).json(allPosts);
     }
 
