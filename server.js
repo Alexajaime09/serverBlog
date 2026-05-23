@@ -1,8 +1,10 @@
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const crypto = require("crypto");
 const uri = process.env.MONGO_URI;
 const express = require("express");
 const app = express();
+
 app.use(express.json());
 
 const client = new MongoClient(uri, {
@@ -135,6 +137,12 @@ app.get("/posts", async (req, res) => {
   }
 });
 
+//======== Get users ============//
+
+app.get("/newusers", async (req, res) => {
+  return res.sendFile("newuser.html", { root: "../Blog-frontend" });
+});
+
 //======== Get by Id ============//
 app.get("/posts/id/:id", async (req, res) => {
   try {
@@ -203,6 +211,35 @@ app.get("/posts/author/:authorName", async (req, res) => {
 });
 
 /* =============== POST =============== */
+
+app.post("/users", async (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const salt = crypto.randomBytes(16);
+  crypto.pbkdf2(
+    password,
+    salt,
+    310000,
+    32,
+    "sha256",
+    async (err, hashedPassword) => {
+      if (err) {
+        return res.status(500).json({ message: "failed" });
+      }
+      const insertResult = await db.collection("users").insertOne({
+        username,
+        hashed_password: hashedPassword.toString("base64"),
+        salt: salt.toString("base64"),
+      });
+
+      return res.status(201).json({
+        _id: insertResult.insertedId,
+        username: username,
+      });
+    },
+  );
+});
+
 app.post("/posts", async (req, res) => {
   let { author, content } = req.body;
 
