@@ -1,12 +1,17 @@
-require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 const crypto = require("crypto");
 const uri = process.env.MONGO_URI;
 const express = require("express");
 const app = express();
+const path = require("path");
+const pwd = require("passwordjs");
+const cors = require("cors");
+
+app.use(cors());
 
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, "../Blog-frontend")));
 const client = new MongoClient(uri, {
   ServerApi: {
     version: ServerApiVersion.v1,
@@ -212,34 +217,68 @@ app.get("/posts/author/:authorName", async (req, res) => {
 
 /* =============== POST =============== */
 
-app.post("/users", async (req, res) => {
+app.post("/signup", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  const salt = crypto.randomBytes(16);
-  crypto.pbkdf2(
-    password,
-    salt,
-    310000,
-    32,
-    "sha256",
-    async (err, hashedPassword) => {
-      if (err) {
-        return res.status(500).json({ message: "failed" });
-      }
-      const insertResult = await db.collection("users").insertOne({
-        username,
-        hashed_password: hashedPassword.toString("base64"),
-        salt: salt.toString("base64"),
-      });
 
-      return res.status(201).json({
-        _id: insertResult.insertedId,
-        username: username,
-      });
-    },
-  );
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
+
+  const existingUser = await db.collection("users").findOne({ username });
+
+  if (existingUser) {
+    return res.status(409).json({
+      message: "Username already exist",
+    });
+  }
+
+  const hashedPassword = await pwd.encrypt(password, "bcrypt");
+  const insertResult = await db.collection("users").insertOne({
+    username,
+    hashed_password: hashedPassword,
+  });
+  return res.status(201).json({
+    _id: insertResult.insertedId,
+    username: username,
+  });
+});
+/////=============== LOGIN ===============//////////
+
+app.post("/login/password", async (req, res) => {
+  let { username, password } = req.body;
+
+  // in the db access to collection users and aply findOne method and we pass ({username}) as query
+  //if user dosen't exist return status 401 and a json({ message: 'incorrect username or password'})
+  let user = await db.collection("users").findOne({ username });
+  if (!user) {
+    return res.status(401).json({
+      message: "incorrect username or password ",
+    });
+  }
+
+  //we wait. we use pwd librery to use compare method, and we pass as parameters (password, user.hashed_password, "bcrypt"), and we save it in a isValid varaible
+
+  let isValidate = await pwd.compare(password, user.hashed_password, bcrypt);
+  console.log(isValidate);
+
+  //if (!isValid) return res.status(401).json({message:"Incorrect username or password"})
+  if (!isValidate) {
+    return res.status(401).json({
+      message: "incorrect user or password",
+    });
+  }
+
+  //otherwise we return json({ _id: user._id, username:user.username})
+  return res.json({
+    _id: user._id,
+    username: user.username,
+  });
 });
 
+/////==============================//////////
 app.post("/posts", async (req, res) => {
   let { author, content } = req.body;
 

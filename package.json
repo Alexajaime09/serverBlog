@@ -11,9 +11,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongodb": "^7.2.0",
-    "node": "^24.15.0"
+    "node": "^24.15.0",
+    "passwordjs": "^0.1.1"
   }
 }
